@@ -11,24 +11,29 @@
     --text-secondary: #9494a8;
     --text-muted: #6b6b80;
 
-    --accent-orange: #f97316;
-    --accent-orange-light: #fb923c;
-    --accent-orange-dark: #ea580c;
-    --accent-amber: #f59e0b;
-    --accent-red: #ef4444;
+    --accent-orange: #10b981;
+    /* Was orange, now emerald-500 */
+    --accent-orange-light: #34d399;
+    /* emerald-400 */
+    --accent-orange-dark: #059669;
+    /* emerald-600 */
+    --accent-amber: #0ea5e9;
+    /* Was amber, now sky-500 for secondary */
+    --accent-red: #f43f5e;
+    /* Keep subtle red for errors, but modern */
     --accent-green: #22c55e;
 
-    --gradient-primary: linear-gradient(135deg, #f97316, #f59e0b);
-    --gradient-hero: linear-gradient(135deg, #f97316 0%, #ef4444 50%, #f59e0b 100%);
-    --gradient-card: linear-gradient(145deg, rgba(249, 115, 22, 0.08), rgba(245, 158, 11, 0.03));
+    --gradient-primary: linear-gradient(135deg, #10b981, #0ea5e9);
+    --gradient-hero: linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #0ea5e9 100%);
+    --gradient-card: linear-gradient(145deg, rgba(16, 185, 129, 0.08), rgba(14, 165, 233, 0.03));
 
     --border-subtle: rgba(255, 255, 255, 0.06);
-    --border-accent: rgba(249, 115, 22, 0.3);
+    --border-accent: rgba(16, 185, 129, 0.3);
 
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
-    --shadow-glow: 0 0 40px rgba(249, 115, 22, 0.15);
+    --shadow-glow: 0 0 40px rgba(16, 185, 129, 0.15);
 
     --radius-sm: 8px;
     --radius-md: 12px;

@@ -8,7 +8,7 @@ const CONFIG = {
         280: { min: 390, max: 450 }
     },
     mixerCapacity: 8,
-    businessName: 'ConcreTEC',
+    businessName: 'ECOMIX',
     bombaAjuste: 0.5
 };
 
@@ -554,8 +554,8 @@ function generatePDF(r) {
     y = 18;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
-    doc.setTextColor(249, 115, 22);
-    doc.text('ConcreTEC', margin, y);
+    doc.setTextColor(34, 197, 94); // Green accent for ECOMIX
+    doc.text('ECOMIX', margin, y);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
@@ -705,8 +705,8 @@ function generatePDF(r) {
     y += 6;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
-    doc.setTextColor(249, 115, 22);
-    doc.text('ConcreTEC', margin, y);
+    doc.setTextColor(34, 197, 94); // Green accent
+    doc.text('ECOMIX', margin, y);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
@@ -730,7 +730,7 @@ function downloadPDF() {
 
     const doc = generatePDF(lastResult);
     const qid = lastQuotationId || 'cotizacion';
-    const filename = `${qid}_ConcreTEC.pdf`;
+    const filename = `${qid}_ECOMIX.pdf`;
 
     // Generate blob for sharing
     const pdfBlob = doc.output('blob');
@@ -739,7 +739,7 @@ function downloadPDF() {
     if (navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], filename, { type: 'application/pdf' })] })) {
         const file = new File([pdfBlob], filename, { type: 'application/pdf' });
         navigator.share({
-            title: `Cotización ConcreTEC — ${lastResult.totalConcreto.toFixed(2)} m³`,
+            title: `Cotización ECOMIX — ${lastResult.totalConcreto.toFixed(2)} m³`,
             text: `Metrado de losa aligerada: ${lastResult.totalConcreto.toFixed(2)} m³ de concreto f'c ${lastResult.fc}`,
             files: [file]
         }).catch(() => {
@@ -763,7 +763,7 @@ function shareQuotation() {
     // Try native share first
     if (navigator.share) {
         navigator.share({
-            title: `Cotización ConcreTEC`,
+            title: `Cotización ECOMIX`,
             text: msg
         }).catch(() => {
             // Fallback to WhatsApp
