@@ -546,8 +546,8 @@ function generatePDF(r) {
     const contentW = pageW - margin * 2;
     let y = margin;
 
-    // --- HEADER with orange accent bar ---
-    doc.setFillColor(249, 115, 22);
+    // --- HEADER with green accent bar ---
+    doc.setFillColor(16, 185, 129); // ECOMIX Green
     doc.rect(0, 0, pageW, 4, 'F');
 
     // Logo text
@@ -565,7 +565,7 @@ function generatePDF(r) {
     // Quotation ID and date (right aligned)
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.setTextColor(249, 115, 22);
+    doc.setTextColor(16, 185, 129); // ECOMIX Green
     doc.text(qid, pageW - margin, y - 2, { align: 'right' });
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 100, 100);
@@ -592,7 +592,7 @@ function generatePDF(r) {
 
     // --- DESGLOSE ---
     function sectionTitle(title) {
-        doc.setFillColor(249, 115, 22);
+        doc.setFillColor(16, 185, 129); // ECOMIX Green
         doc.rect(margin, y - 4, 3, 14, 'F');
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(11);
@@ -657,7 +657,7 @@ function generatePDF(r) {
 
     // --- TOTAL BOX ---
     y += 2;
-    doc.setFillColor(249, 115, 22);
+    doc.setFillColor(16, 185, 129); // ECOMIX Green
     doc.roundedRect(margin, y - 4, contentW, 18, 3, 3, 'F');
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(13);
@@ -681,22 +681,22 @@ function generatePDF(r) {
     const minP = Math.round(r.totalConcreto * priceRange.min);
     const maxP = Math.round(r.totalConcreto * priceRange.max);
 
-    doc.setFillColor(255, 247, 237);
+    doc.setFillColor(236, 253, 245); // Light green bg
     doc.roundedRect(margin, y - 4, contentW, 22, 3, 3, 'F');
-    doc.setDrawColor(249, 200, 150);
+    doc.setDrawColor(167, 243, 208); // Green border
     doc.setLineWidth(0.5);
     doc.roundedRect(margin, y - 4, contentW, 22, 3, 3, 'S');
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
-    doc.setTextColor(180, 90, 10);
+    doc.setTextColor(6, 95, 70); // Dark green
     doc.text('PRECIO ESTIMADO', margin + 8, y + 4);
     doc.setFontSize(14);
-    doc.setTextColor(200, 80, 0);
+    doc.setTextColor(4, 120, 87); // Emerald 700
     doc.text(`S/ ${minP.toLocaleString()} — S/ ${maxP.toLocaleString()}`, pageW - margin - 8, y + 4, { align: 'right' });
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
-    doc.setTextColor(150, 120, 80);
+    doc.setTextColor(100, 116, 139); // Slate grayish
     doc.text('* Precio referencial. El precio final depende de la distancia y acceso a la obra.', margin + 8, y + 13);
     y += 30;
 
@@ -719,7 +719,7 @@ function generatePDF(r) {
     doc.text('Plantas: Zona 3 de Diciembre', margin, y);
 
     // Bottom accent bar
-    doc.setFillColor(249, 115, 22);
+    doc.setFillColor(16, 185, 129); // ECOMIX Green
     doc.rect(0, 293, pageW, 4, 'F');
 
     return doc;
