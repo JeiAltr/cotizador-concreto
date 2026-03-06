@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador de Concreto Premezclado — Metrado Profesional | Huancayo</title>
+    <meta name="description"
+        content="Calcula el metrado de concreto premezclado para losas aligeradas como se hace en obra. Cálculo profesional paso a paso. Huancayo, Perú.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="particles" id="particles"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="4" y="20" width="14" height="16" rx="2" fill="url(#grad1)" opacity="0.9" />
+                        <rect x="22" y="12" width="14" height="24" rx="2" fill="url(#grad2)" opacity="0.9" />
+                        <rect x="10" y="6" width="20" height="8" rx="2" fill="url(#grad3)" opacity="0.8" />
+                        <defs>
+                            <linearGradient id="grad1" x1="4" y1="20" x2="18" y2="36">
+                                <stop stop-color="#f97316" />
+                                <stop offset="1" stop-color="#ea580c" />
+                            </linearGradient>
+                            <linearGradient id="grad2" x1="22" y1="12" x2="36" y2="36">
+                                <stop stop-color="#fb923c" />
+                                <stop offset="1" stop-color="#f97316" />
+                            </linearGradient>
+                            <linearGradient id="grad3" x1="10" y1="6" x2="30" y2="14">
+                                <stop stop-color="#fdba74" />
+                                <stop offset="1" stop-color="#fb923c" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-name">ConcreTEC</span>
+                    <span class="logo-tagline">Metrado Profesional</span>
+                </div>
+            </div>
+            <button class="header-history-btn" onclick="toggleHistoryModal()" id="headerHistoryBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                </svg>
+                <span class="history-btn-text">Mis Cotizaciones</span>
+                <span class="history-badge hidden" id="historyBadge">0</span>
+            </button>
+            <a href="#cotizador" class="header-cta">Cotizar Ahora</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <span class="pulse-dot"></span>
+                Metrado profesional de obra
+            </div>
+            <h1 class="hero-title">
+                Metra tu losa aligerada<br>
+                <span class="gradient-text">como en obra</span>
+            </h1>
+            <p class="hero-subtitle">
+                Calcula el concreto de tu losa paso a paso: áreas, bloquetas, vigas, escalera y bomba pluma.
+                Cotización directa por WhatsApp.
+            </p>
+            <a href="#cotizador" class="hero-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                    <path d="M9 9h6M9 13h6M9 17h4" />
+                </svg>
+                Iniciar metrado — Es gratis
+            </a>
+        </div>
+    </section>
+
+    <!-- Calculator Section -->
+    <section class="calculator-section" id="cotizador">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Metrado de Losa Aligerada</h2>
+                <p class="section-desc">Sigue los pasos como en obra para calcular el concreto exacto</p>
+            </div>
+
+            <div class="calculator-layout">
+                <!-- Left: Calculator Steps -->
+                <div class="calc-card">
+
+                    <!-- PASO 1: Áreas de losa -->
+                    <div class="calc-step" id="step1">
+                        <div class="step-header">
+                            <span class="step-number">1</span>
+                            <span class="step-title">Áreas de la losa</span>
+                            <span class="step-hint">Divide la planta en rectángulos y suma sus áreas</span>
+                        </div>
+                        <div class="dynamic-list" id="areasList">
+                            <!-- Rendered by JS -->
+                        </div>
+                        <button class="add-btn" onclick="addZone('area')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            Agregar zona
+                        </button>
+                        <div class="step-subtotal">
+                            <span>Área bruta total:</span>
+                            <span class="subtotal-value" id="subtotalAreaBruta">0.00 m²</span>
+                        </div>
+                    </div>
+
+                    <!-- PASO 2: Descuentos -->
+                    <div class="calc-step" id="step2">
+                        <div class="step-header">
+                            <span class="step-number">2</span>
+                            <span class="step-title">Descuentos de área</span>
+                            <span class="step-hint">Huecos de escalera, tragaluces, ductos, patios</span>
+                        </div>
+                        <div class="dynamic-list" id="descuentosList">
+                            <!-- Rendered by JS -->
+                        </div>
+                        <button class="add-btn" onclick="addZone('descuento')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            Agregar descuento
+                        </button>
+                        <div class="step-subtotal">
+                            <span>Área construida:</span>
+                            <span class="subtotal-value accent" id="subtotalAreaConstruida">0.00 m²</span>
+                        </div>
+                    </div>
+
+                    <!-- PASO 3: Espesor de losa y Bloquetas -->
+                    <div class="calc-step" id="step3">
+                        <div class="step-header">
+                            <span class="step-number">3</span>
+                            <span class="step-title">Losa y Bloquetas</span>
+                            <span class="step-hint">Espesor de losa y dimensiones de bloqueta de aligeramiento</span>
+                        </div>
+                        <div class="config-grid">
+                            <div class="config-group">
+                                <h4>Espesor de losa</h4>
+                                <div class="inline-field">
+                                    <input type="number" class="dim-input" id="espesorLosa" value="0.20" step="0.01"
+                                        min="0.05">
+                                    <span class="input-suffix">m</span>
+                                </div>
+                            </div>
+                            <div class="config-group">
+                                <h4>Bloqueta de aligeramiento</h4>
+                                <div class="bloqueta-dims">
+                                    <div class="inline-field">
+                                        <label>Largo</label>
+                                        <input type="number" class="dim-input sm" id="bloquetaLargo" value="0.30"
+                                            step="0.01">
+                                        <span class="input-suffix">m</span>
+                                    </div>
+                                    <div class="inline-field">
+                                        <label>Ancho</label>
+                                        <input type="number" class="dim-input sm" id="bloquetaAncho" value="0.30"
+                                            step="0.01">
+                                        <span class="input-suffix">m</span>
+                                    </div>
+                                    <div class="inline-field">
+                                        <label>Alto</label>
+                                        <input type="number" class="dim-input sm" id="bloquetaAlto" value="0.15"
+                                            step="0.01">
+                                        <span class="input-suffix">m</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PASO 4: Vigas peraltadas -->
+                    <div class="calc-step" id="step4">
+                        <div class="step-header">
+                            <span class="step-number">4</span>
+                            <span class="step-title">Vigas peraltadas</span>
+                            <span class="step-hint">Opcional — largo × ancho × peralte de cada viga</span>
+                        </div>
+                        <div class="dynamic-list" id="vigasList">
+                            <!-- Rendered by JS -->
+                        </div>
+                        <button class="add-btn" onclick="addZone('viga')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            Agregar viga
+                        </button>
+                        <div class="step-subtotal">
+                            <span>Vol. vigas:</span>
+                            <span class="subtotal-value" id="subtotalVigas">0.00 m³</span>
+                        </div>
+                    </div>
+
+                    <!-- PASO 5: Escalera -->
+                    <div class="calc-step" id="step5">
+                        <div class="step-header">
+                            <span class="step-number">5</span>
+                            <span class="step-title">Escalera</span>
+                            <span class="step-hint">Opcional — si existe escalera en este vaciado</span>
+                        </div>
+                        <div class="toggle-row">
+                            <label class="toggle" id="toggleEscalera">
+                                <input type="checkbox" id="checkEscalera" onchange="toggleEscalera()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label">Incluir escalera en el vaciado</span>
+                        </div>
+                        <div class="escalera-fields hidden" id="escaleraFields">
+                            <div class="escalera-grid">
+                                <div class="inline-field">
+                                    <label>Altura total</label>
+                                    <input type="number" class="dim-input sm" id="escaleraAltura" value="2.80"
+                                        step="0.01">
+                                    <span class="input-suffix">m</span>
+                                </div>
+                                <div class="inline-field">
+                                    <label>Longitud horizontal</label>
+                                    <input type="number" class="dim-input sm" id="escaleraLongitud" value="4.00"
+                                        step="0.01">
+                                    <span class="input-suffix">m</span>
+                                </div>
+                                <div class="inline-field">
+                                    <label>Ancho</label>
+                                    <input type="number" class="dim-input sm" id="escaleraAncho" value="1.00"
+                                        step="0.01">
+                                    <span class="input-suffix">m</span>
+                                </div>
+                                <div class="inline-field">
+                                    <label>Espesor losa</label>
+                                    <input type="number" class="dim-input sm" id="escaleraEspesor" value="0.15"
+                                        step="0.01">
+                                    <span class="input-suffix">m</span>
+                                </div>
+                                <div class="inline-field">
+                                    <label>Contrapaso</label>
+                                    <input type="number" class="dim-input sm" id="escaleraContrapaso" value="0.175"
+                                        step="0.005">
+                                    <span class="input-suffix">m</span>
+                                </div>
+                                <div class="inline-field">
+                                    <label>Paso (huella)</label>
+                                    <input type="number" class="dim-input sm" id="escaleraPaso" value="0.25"
+                                        step="0.01">
+                                    <span class="input-suffix">m</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PASO 6: Bomba pluma -->
+                    <div class="calc-step" id="step6">
+                        <div class="step-header">
+                            <span class="step-number">6</span>
+                            <span class="step-title">Bomba pluma</span>
+                            <span class="step-hint">Agrega +0.5 m³ por concreto que queda en la batea</span>
+                        </div>
+                        <div class="toggle-row">
+                            <label class="toggle" id="toggleBomba">
+                                <input type="checkbox" id="checkBomba">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label">Se usará bomba pluma para el vaciado</span>
+                        </div>
+                    </div>
+
+                    <!-- PASO 7: Resistencia -->
+                    <div class="calc-step" id="step7">
+                        <div class="step-header">
+                            <span class="step-number">7</span>
+                            <span class="step-title">Resistencia del concreto</span>
+                        </div>
+                        <div class="resistance-grid" id="resistanceGrid">
+                            <button class="resistance-btn" data-fc="175" id="fc-175">
+                                <span class="fc-value">f'c 175</span>
+                                <span class="fc-use">Veredas, pisos</span>
+                            </button>
+                            <button class="resistance-btn active" data-fc="210" id="fc-210">
+                                <span class="fc-value">f'c 210</span>
+                                <span class="fc-use">Losas, vigas, columnas</span>
+                                <span class="fc-popular">Popular</span>
+                            </button>
+                            <button class="resistance-btn" data-fc="245" id="fc-245">
+                                <span class="fc-value">f'c 245</span>
+                                <span class="fc-use">Estructuras exigentes</span>
+                            </button>
+                            <button class="resistance-btn" data-fc="280" id="fc-280">
+                                <span class="fc-value">f'c 280</span>
+                                <span class="fc-use">Alta resistencia</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Calculate Button -->
+                    <button class="calculate-btn" id="calculateBtn" onclick="calculate()">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="4" y="2" width="16" height="20" rx="2" />
+                            <line x1="8" y1="6" x2="16" y2="6" />
+                            <line x1="8" y1="10" x2="10" y2="10" />
+                            <line x1="14" y1="10" x2="16" y2="10" />
+                            <line x1="8" y1="14" x2="10" y2="14" />
+                            <line x1="14" y1="14" x2="16" y2="14" />
+                            <line x1="8" y1="18" x2="16" y2="18" />
+                        </svg>
+                        Calcular Metrado Completo
+                    </button>
+                </div>
+
+                <!-- Right: Results -->
+                <div class="results-panel" id="resultsPanel">
+                    <div class="results-placeholder" id="resultsPlaceholder">
+                        <div class="placeholder-icon">
+                            <svg viewBox="0 0 80 80" fill="none">
+                                <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="2" opacity="0.2" />
+                                <path d="M28 40 L36 48 L52 32" stroke="currentColor" stroke-width="3"
+                                    stroke-linecap="round" stroke-linejoin="round" opacity="0.2" />
+                            </svg>
+                        </div>
+                        <p>Completa los pasos del metrado y presiona <strong>"Calcular"</strong> para ver el desglose
+                            completo</p>
+                    </div>
+
+                    <div class="results-content hidden" id="resultsContent">
+                        <!-- Total header -->
+                        <div class="result-header-card">
+                            <span class="result-label">TOTAL DE CONCRETO</span>
+                            <div class="result-volume">
+                                <span class="volume-number" id="resultTotal">0.00</span>
+                                <span class="volume-unit">m³</span>
+                            </div>
+                            <span class="result-structure">Losa Aligerada — Metrado de obra</span>
+                        </div>
+
+                        <!-- Desglose table -->
+                        <div class="desglose-card">
+                            <h4 class="desglose-title">Desglose del metrado</h4>
+                            <div class="desglose-table" id="desgloseTable">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Price estimate -->
+                        <div class="price-estimate">
+                            <div class="price-header">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M12 6v12M9 9h4.5a2.5 2.5 0 010 5H9" />
+                                </svg>
+                                Precio estimado
+                            </div>
+                            <div class="price-range">
+                                <span class="price-from">S/ <span id="priceMin">0</span></span>
+                                <span class="price-separator">—</span>
+                                <span class="price-to">S/ <span id="priceMax">0</span></span>
+                            </div>
+                            <span class="price-note">* Precio referencial. El precio final depende de la distancia y
+                                acceso a la obra.</span>
+                        </div>
+
+                        <!-- Mixer info -->
+                        <div class="mixer-info">
+                            <div class="mixer-icon">🚛</div>
+                            <div class="mixer-text">
+                                <strong>Camiones mixer estimados:</strong>
+                                <span id="mixerCount">1</span> camión(es) de 8 m³
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons Post-Cotización -->
+                        <div class="post-actions" id="postActions">
+                            <button class="action-btn action-pdf" id="pdfBtn" onclick="downloadPDF()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="16" y1="13" x2="8" y2="13" />
+                                    <line x1="16" y1="17" x2="8" y2="17" />
+                                    <polyline points="10 9 9 9 8 9" />
+                                </svg>
+                                <span>Descargar PDF</span>
+                            </button>
+                            <button class="action-btn action-share" id="shareBtn" onclick="shareQuotation()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="18" cy="5" r="3" />
+                                    <circle cx="6" cy="12" r="3" />
+                                    <circle cx="18" cy="19" r="3" />
+                                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                                </svg>
+                                <span>Compartir</span>
+                            </button>
+                            <button class="action-btn action-save" id="savedIndicator">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                                <span>Guardado ✓</span>
+                            </button>
+                        </div>
+
+                        <!-- WhatsApp -->
+                        <a href="#" class="whatsapp-btn" id="whatsappBtn" target="_blank">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                            </svg>
+                            Solicitar cotización por WhatsApp
+                        </a>
+
+                        <button class="recalculate-btn" onclick="resetCalculator()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M1 4v6h6M23 20v-6h-6" />
+                                <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" />
+                            </svg>
+                            Nuevo metrado
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section">
+        <div class="container">
+            <h2 class="section-title">¿Por qué elegirnos?</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3>Metrado profesional</h3>
+                    <p>Cálculo paso a paso igual que en obra. Bloquetas, vigas, escalera y bomba incluidos.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3>Puntualidad</h3>
+                    <p>El mixer llega a la hora acordada. Coordinamos todo para que tu vaciado salga perfecto.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path
+                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <h3>Mejor precio</h3>
+                    <p>Te damos el mejor precio del mercado. Cotiza sin compromiso y compara.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path
+                                d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                    <h3>Asesoría técnica</h3>
+                    <p>Te ayudamos a calcular la cantidad exacta para tu obra. Sin desperdicio.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-card">
+                <h2>¿Listo para vaciar tu losa?</h2>
+                <p>Contáctanos ahora y recibe tu cotización con metrado completo. Atendemos Huancayo, El Tambo, Chilca y
+                    alrededores.</p>
+                <div class="cta-buttons">
+                    <a href="#cotizador" class="cta-btn-primary">Calcular mi concreto</a>
+                    <a href="https://wa.me/51901399575?text=Hola%2C%20quiero%20cotizar%20concreto%20premezclado%20para%20mi%20obra"
+                        class="cta-btn-whatsapp" target="_blank">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                        </svg>
+                        Escribir por WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo-name">ConcreTEC</span>
+                    <p>Concreto premezclado con metrado profesional para toda la provincia de Huancayo.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Servicio</h4>
+                    <ul>
+                        <li>Concreto f'c 175</li>
+                        <li>Concreto f'c 210</li>
+                        <li>Concreto f'c 245</li>
+                        <li>Concreto f'c 280</li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Zonas</h4>
+                    <ul>
+                        <li>Huancayo</li>
+                        <li>El Tambo</li>
+                        <li>Chilca</li>
+                        <li>Pilcomayo</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 ConcreTEC — Concreto Premezclado. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- History Modal -->
+    <div class="modal-overlay hidden" id="historyModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    Mis Cotizaciones
+                </h3>
+                <button class="modal-close" onclick="toggleHistoryModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="historyList">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast hidden" id="toast">
+        <span class="toast-icon" id="toastIcon">✓</span>
+        <span class="toast-msg" id="toastMsg"></span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
