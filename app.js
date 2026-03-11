@@ -1,12 +1,19 @@
 // ===== CONFIGURATION =====
 const CONFIG = {
-    whatsappNumber: '51901399575',
+    whatsappNumber: '51902962544',
     prices: {
         175: { min: 280, max: 320 },
         210: { min: 310, max: 360 },
         245: { min: 350, max: 400 },
         280: { min: 390, max: 450 }
     },
+    zonas: [
+        { id: 'z1', nombre: 'El Tambo / 3 de Diciembre',      surcharge: 0,  desc: 'Zona de planta — precio base' },
+        { id: 'z2', nombre: 'Huancayo Centro / Chilca',        surcharge: 5,  desc: 'Aprox. +S/ 5/m³ por distancia' },
+        { id: 'z3', nombre: 'Pilcomayo / Sicaya / Huancán',   surcharge: 12, desc: 'Aprox. +S/ 12/m³ por distancia' },
+        { id: 'z4', nombre: 'Concepción / Mito / Orcotuna',   surcharge: 20, desc: 'Aprox. +S/ 20/m³ por distancia' },
+        { id: 'z5', nombre: 'Otra zona — Consultar precio',   surcharge: -1, desc: 'Precio sujeto a evaluación de ruta' },
+    ],
     mixerCapacity: 8,
     businessName: 'ECOMIX',
     bombaAjuste: 0.5
@@ -18,7 +25,9 @@ let state = {
     descuentos: [],
     vigas: [],
     fc: 210,
-    nextId: 1
+    nextId: 1,
+    modo: 'cliente',
+    zonaId: 'z1',
 };
 
 // Store last result for PDF/share actions
@@ -29,6 +38,7 @@ let lastQuotationId = null;
 document.addEventListener('DOMContentLoaded', () => {
     initParticles();
     initResistanceButtons();
+    initZonaSelect();
     addZone('area');  // Start with one area zone
     updateSubtotals();
     renderHistoryBadge();
@@ -254,6 +264,61 @@ function toggleEscalera() {
     }
 }
 
+// ===== PRICE MODE =====
+function initZonaSelect() {
+    const sel = document.getElementById('zonaSelect');
+    if (!sel) return;
+    sel.innerHTML = CONFIG.zonas.map(z =>
+        `<option value="${z.id}">${z.nombre}</option>`
+    ).join('');
+    setZona('z1');
+}
+
+function setModo(modo) {
+    state.modo = modo;
+    document.getElementById('tabCliente').classList.toggle('active', modo === 'cliente');
+    document.getElementById('tabVendedor').classList.toggle('active', modo === 'vendedor');
+    document.getElementById('modoClientePanel').classList.toggle('hidden', modo !== 'cliente');
+    document.getElementById('modoVendedorPanel').classList.toggle('hidden', modo !== 'vendedor');
+}
+
+function setZona(zonaId) {
+    state.zonaId = zonaId;
+    const zona = CONFIG.zonas.find(z => z.id === zonaId);
+    if (zona) document.getElementById('zonaDesc').textContent = zona.desc;
+}
+
+function renderPriceResult(r) {
+    const priceRange = CONFIG.prices[r.fc];
+    if (state.modo === 'vendedor') {
+        const pm = parseFloat(document.getElementById('precioManualInput')?.value);
+        if (!isNaN(pm) && pm > 0) {
+            const total = Math.round(r.totalConcreto * pm);
+            document.getElementById('priceMin').textContent = total.toLocaleString();
+            document.getElementById('priceMax').textContent = total.toLocaleString();
+            document.querySelector('.price-note').textContent = `Precio exacto: S/ ${pm.toFixed(0)}/m³`;
+        } else {
+            document.getElementById('priceMin').textContent = '—';
+            document.getElementById('priceMax').textContent = '—';
+            document.querySelector('.price-note').textContent = 'Ingresa el precio por m³ en el Paso 8';
+        }
+    } else {
+        const zona = CONFIG.zonas.find(z => z.id === state.zonaId) || CONFIG.zonas[0];
+        if (zona.surcharge === -1) {
+            document.getElementById('priceMin').textContent = 'Consultar';
+            document.getElementById('priceMax').textContent = 'WhatsApp';
+            document.querySelector('.price-note').textContent = 'Zona lejana — precio sujeto a evaluación de ruta';
+        } else {
+            const minPrice = Math.round(r.totalConcreto * (priceRange.min + zona.surcharge));
+            const maxPrice = Math.round(r.totalConcreto * (priceRange.max + zona.surcharge));
+            document.getElementById('priceMin').textContent = minPrice.toLocaleString();
+            document.getElementById('priceMax').textContent = maxPrice.toLocaleString();
+            const extra = zona.surcharge > 0 ? ` (+S/ ${zona.surcharge}/m³ por zona)` : '';
+            document.querySelector('.price-note').textContent = `* Precio referencial${extra}. El precio final puede variar.`;
+        }
+    }
+}
+
 // ===== RESISTANCE BUTTONS =====
 function initResistanceButtons() {
     document.querySelectorAll('.resistance-btn').forEach(btn => {
@@ -438,12 +503,8 @@ function showResults(r) {
 
     table.innerHTML = rows;
 
-    // Price
-    const priceRange = CONFIG.prices[r.fc];
-    const minPrice = Math.round(r.totalConcreto * priceRange.min);
-    const maxPrice = Math.round(r.totalConcreto * priceRange.max);
-    document.getElementById('priceMin').textContent = minPrice.toLocaleString();
-    document.getElementById('priceMax').textContent = maxPrice.toLocaleString();
+    // Price (mode-aware)
+    renderPriceResult(r);
 
     // Mixer
     const mixerCount = Math.ceil(r.totalConcreto / CONFIG.mixerCapacity);
@@ -521,10 +582,26 @@ function buildWhatsAppMessage(r) {
     msg += `🧱 Resistencia: f'c ${r.fc} kg/cm²\n`;
     msg += `🚛 Mixers: ${Math.ceil(r.totalConcreto / CONFIG.mixerCapacity)} camión(es)\n\n`;
 
-    const priceRange = CONFIG.prices[r.fc];
-    const minP = Math.round(r.totalConcreto * priceRange.min);
-    const maxP = Math.round(r.totalConcreto * priceRange.max);
-    msg += `💰 *Precio est.: S/ ${minP.toLocaleString()} — S/ ${maxP.toLocaleString()}*\n\n`;
+    if (state.modo === 'vendedor') {
+        const pm = parseFloat(document.getElementById('precioManualInput')?.value);
+        if (!isNaN(pm) && pm > 0) {
+            const total = Math.round(r.totalConcreto * pm);
+            msg += `💰 *Precio total: S/ ${total.toLocaleString()}*\n`;
+            msg += `   (S/ ${pm.toFixed(0)}/m³ pactado)\n\n`;
+        }
+    } else {
+        const zona = CONFIG.zonas.find(z => z.id === state.zonaId) || CONFIG.zonas[0];
+        if (zona.surcharge === -1) {
+            msg += `💰 *Precio: A consultar por zona*\n\n`;
+        } else {
+            const priceRange = CONFIG.prices[r.fc];
+            const minP = Math.round(r.totalConcreto * (priceRange.min + zona.surcharge));
+            const maxP = Math.round(r.totalConcreto * (priceRange.max + zona.surcharge));
+            msg += `💰 *Precio est.: S/ ${minP.toLocaleString()} — S/ ${maxP.toLocaleString()}*\n`;
+            if (zona.surcharge > 0) msg += `   (zona: ${zona.nombre})\n`;
+            msg += `\n`;
+        }
+    }
     msg += `Calculado en ${CONFIG.businessName}\n`;
     msg += `¡Quiero confirmar mi cotización! 🙋‍♂️`;
 
@@ -676,28 +753,50 @@ function generatePDF(r) {
     dataRow('Camiones mixer estimados', `${mixers} camión(es) de 8 m³`);
     y += 4;
 
-    // --- PRICE ---
-    const priceRange = CONFIG.prices[r.fc];
-    const minP = Math.round(r.totalConcreto * priceRange.min);
-    const maxP = Math.round(r.totalConcreto * priceRange.max);
+    // --- PRICE (mode-aware) ---
+    let priceDisplayText, priceNoteText;
+    if (state.modo === 'vendedor') {
+        const pm = parseFloat(document.getElementById('precioManualInput')?.value);
+        if (!isNaN(pm) && pm > 0) {
+            priceDisplayText = `S/ ${Math.round(r.totalConcreto * pm).toLocaleString()}`;
+            priceNoteText = `Precio exacto: S/ ${pm.toFixed(0)}/m³`;
+        } else {
+            priceDisplayText = 'A definir';
+            priceNoteText = 'Precio no ingresado';
+        }
+    } else {
+        const zona = CONFIG.zonas.find(z => z.id === state.zonaId) || CONFIG.zonas[0];
+        if (zona.surcharge === -1) {
+            priceDisplayText = 'Consultar';
+            priceNoteText = 'Precio sujeto a evaluación de ruta — contactar por WhatsApp';
+        } else {
+            const priceRange = CONFIG.prices[r.fc];
+            const minP = Math.round(r.totalConcreto * (priceRange.min + zona.surcharge));
+            const maxP = Math.round(r.totalConcreto * (priceRange.max + zona.surcharge));
+            priceDisplayText = `S/ ${minP.toLocaleString()} — S/ ${maxP.toLocaleString()}`;
+            priceNoteText = zona.surcharge > 0
+                ? `* Incluye +S/ ${zona.surcharge}/m³ por zona: ${zona.nombre}`
+                : '* Precio referencial. El precio final depende de la distancia y acceso.';
+        }
+    }
 
-    doc.setFillColor(236, 253, 245); // Light green bg
+    doc.setFillColor(236, 253, 245);
     doc.roundedRect(margin, y - 4, contentW, 22, 3, 3, 'F');
-    doc.setDrawColor(167, 243, 208); // Green border
+    doc.setDrawColor(167, 243, 208);
     doc.setLineWidth(0.5);
     doc.roundedRect(margin, y - 4, contentW, 22, 3, 3, 'S');
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
-    doc.setTextColor(6, 95, 70); // Dark green
+    doc.setTextColor(6, 95, 70);
     doc.text('PRECIO ESTIMADO', margin + 8, y + 4);
-    doc.setFontSize(14);
-    doc.setTextColor(4, 120, 87); // Emerald 700
-    doc.text(`S/ ${minP.toLocaleString()} — S/ ${maxP.toLocaleString()}`, pageW - margin - 8, y + 4, { align: 'right' });
+    doc.setFontSize(13);
+    doc.setTextColor(4, 120, 87);
+    doc.text(priceDisplayText, pageW - margin - 8, y + 4, { align: 'right' });
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
-    doc.setTextColor(100, 116, 139); // Slate grayish
-    doc.text('* Precio referencial. El precio final depende de la distancia y acceso a la obra.', margin + 8, y + 13);
+    doc.setTextColor(100, 116, 139);
+    doc.text(priceNoteText, margin + 8, y + 13);
     y += 30;
 
     // --- FOOTER ---

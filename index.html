@@ -14,6 +14,39 @@
         rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=2">
     <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <style>
+        .modo-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+        .modo-tab {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            gap: 6px; padding: 8px 12px; border: 1.5px solid #2d3748;
+            border-radius: 8px; background: #1a2332; color: #9ca3af;
+            font-size: 13px; font-weight: 500; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: all 0.2s;
+        }
+        .modo-tab.active { border-color: #10b981; background: rgba(16,185,129,0.12); color: #10b981; }
+        .zona-select {
+            width: 100%; padding: 10px 12px; background: #1a2332;
+            border: 1.5px solid #2d3748; border-radius: 8px; color: #f1f5f9;
+            font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer;
+            margin-bottom: 8px; outline: none;
+        }
+        .zona-select:focus { border-color: #10b981; }
+        .zona-nota { font-size: 11px; color: #6b7280; margin-top: 4px; line-height: 1.4; }
+        .step-label {
+            font-size: 11px; font-weight: 600; color: #9ca3af;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            display: block; margin-bottom: 8px;
+        }
+        .precio-manual-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .precio-prefix { font-size: 15px; font-weight: 700; color: #10b981; }
+        .precio-manual-input {
+            width: 140px; padding: 8px 12px; background: #1a2332;
+            border: 1.5px solid #2d3748; border-radius: 8px; color: #f1f5f9;
+            font-size: 15px; font-family: 'JetBrains Mono', monospace; outline: none;
+        }
+        .precio-manual-input:focus { border-color: #10b981; }
+        .precio-manual-suffix { font-size: 13px; color: #9ca3af; }
+    </style>
 </head>
 
 <body>
@@ -311,6 +344,41 @@
                         </div>
                     </div>
 
+                    <!-- PASO 8: Precio -->
+                    <div class="calc-step" id="step8">
+                        <div class="step-header">
+                            <span class="step-number">8</span>
+                            <span class="step-title">Precio</span>
+                            <span class="step-hint">Cliente: precio por zona | Vendedor: precio exacto</span>
+                        </div>
+                        <div class="modo-tabs">
+                            <button class="modo-tab active" id="tabCliente" onclick="setModo('cliente')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                Cliente
+                            </button>
+                            <button class="modo-tab" id="tabVendedor" onclick="setModo('vendedor')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                                Vendedor
+                            </button>
+                        </div>
+                        <!-- Modo Cliente -->
+                        <div id="modoClientePanel">
+                            <label class="step-label">Zona de la obra</label>
+                            <select class="zona-select" id="zonaSelect" onchange="setZona(this.value)"></select>
+                            <p class="zona-nota" id="zonaDesc"></p>
+                        </div>
+                        <!-- Modo Vendedor -->
+                        <div id="modoVendedorPanel" class="hidden">
+                            <label class="step-label">Precio pactado por m³</label>
+                            <div class="precio-manual-row">
+                                <span class="precio-prefix">S/</span>
+                                <input type="number" class="precio-manual-input" id="precioManualInput" placeholder="Ej: 340" step="1" min="0">
+                                <span class="precio-manual-suffix">/ m³</span>
+                            </div>
+                            <p class="zona-nota">El precio total se calcula exactamente sobre este valor.</p>
+                        </div>
+                    </div>
+
                     <!-- Calculate Button -->
                     <button class="calculate-btn" id="calculateBtn" onclick="calculate()">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -501,7 +569,7 @@
                     alrededores.</p>
                 <div class="cta-buttons">
                     <a href="#cotizador" class="cta-btn-primary">Calcular mi concreto</a>
-                    <a href="https://wa.me/51901399575?text=Hola%2C%20quiero%20cotizar%20concreto%20premezclado%20para%20mi%20obra"
+                    <a href="https://wa.me/51902962544?text=Hola%2C%20quiero%20cotizar%20concreto%20premezclado%20para%20mi%20obra"
                         class="cta-btn-whatsapp" target="_blank">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                             <path
@@ -519,7 +587,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <span class="logo-name">ConcreTEC</span>
+                    <span class="logo-name">ECOMIX</span>
                     <p>Concreto premezclado con metrado profesional para toda la provincia de Huancayo.</p>
                 </div>
                 <div class="footer-links">
